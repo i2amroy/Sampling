@@ -13,6 +13,12 @@ void initialize_nodes(sample_node nodes[], int count) {
     }
 }
 
+void swap_node_arrays(sample_node* &first_array, sample_node* &second_array) {
+    sample_node* tmp = first_array;
+    first_array = second_array;
+    second_array = tmp;
+}
+
 sampler::sampler(GDALDataset *raster_data) : raster_data(raster_data), current_i(-1), current_j(0) {
     GDALRasterBand *red = raster_data->GetRasterBand(1);
     // At this point we're assuming all three bands are the same size

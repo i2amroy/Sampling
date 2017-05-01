@@ -48,6 +48,8 @@ struct sample_node {
 
 void initialize_nodes(sample_node nodes[], int count);
 
+void swap_node_arrays(sample_node* &first_array, sample_node* &second_array);
+
 int rand_int(int min, int max);
 
 
