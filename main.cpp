@@ -104,7 +104,7 @@ int main() {
             std::vector<int> counts = std::vector<int>();
             std::vector<int> remainders = std::vector<int>();
             // If there was at least one intersection
-            if (tmp != NULL || !tmp->IsEmpty()) {
+            if (tmp != NULL && !tmp->IsEmpty()) {
                 OGRMultiPoint *intersections = dynamic_cast<OGRMultiPoint*>(tmp);
 
                 bool x_coords = pixel_data[1] != 0;
