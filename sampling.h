@@ -44,6 +44,7 @@ struct sample_node {
     unsigned int green;
     unsigned int blue;
     unsigned int count;
+    unsigned int streak;
 };
 
 void initialize_nodes(sample_node nodes[], int count);

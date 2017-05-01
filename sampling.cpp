@@ -10,6 +10,7 @@ void initialize_nodes(sample_node nodes[], int count) {
         nodes[i].green = 0;
         nodes[i].blue = 0;
         nodes[i].count = 0;
+        nodes[i].streak = 0;
     }
 }
 
@@ -49,6 +50,9 @@ GByte *sampler::get_next_data(int &size) {
                                          blockheight, band_data, blockwidth, blockheight, GDT_Byte,
                                          3, NULL, 3,
                                          3 * blockwidth, 1);
+    if (ecode == CE_Failure) {
+        throw 10;
+    }
     return band_data;
 }
 

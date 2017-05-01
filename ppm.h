@@ -10,6 +10,7 @@
 
 void write_p6(std::ofstream &outfile, int width, int height, int maxval, std::string filename);
 
-void nodes_to_p6(std::ofstream &stream, sample_node nodes[], int count);
+void nodes_to_p6(std::ofstream &stream, std::ofstream &logstream, sample_node nodes[],
+                 sample_node upnodes[], int count);
 
 #endif //GDALWORK_PPM_H
