@@ -55,11 +55,6 @@ GByte *sampler::get_next_data(int &size) {
     return band_data;
 }
 
-void sampler::reset_sampling() {
-    current_i = 0;
-    current_j = 0;
-}
-
 int sampler::get_width() {
     return width;
 }
@@ -68,16 +63,8 @@ int sampler::get_height() {
     return height;
 }
 
-int sampler::get_blockwidth() {
-    return blockwidth;
-}
-
 int sampler::get_blockheight() {
     return blockheight;
-}
-
-int sampler::get_current_i() {
-    return current_i;
 }
 
 int sampler::get_current_j() {

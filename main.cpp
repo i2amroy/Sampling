@@ -1,9 +1,7 @@
 #include "gdal_priv.h"
-#include "cpl_conv.h" // for CPLMalloc()
 #include "ogrsf_frmts.h"
 #include "sampling.h"
 #include "ppm.h"
-#include <unistd.h>
 
 #define FINEFACTOR 2
 #define COARSEFACTOR 10
@@ -63,14 +61,16 @@ int main() {
 
 
     // Initialize our random number generator
-    srand(time(NULL));
+    srand((unsigned int) time(NULL));
 
     std::ofstream outfile;
-    write_p6(outfile, data_manager.get_width() / DOWNSAMPLING, data_manager.get_height() / DOWNSAMPLING,
+    write_p6(outfile, data_manager.get_width() / DOWNSAMPLING,
+             data_manager.get_height() / DOWNSAMPLING,
              255, "out.ppm");
 
     std::ofstream logfile;
-    write_p6(logfile, data_manager.get_width() / DOWNSAMPLING, data_manager.get_height() / DOWNSAMPLING,
+    write_p6(logfile, data_manager.get_width() / DOWNSAMPLING,
+             data_manager.get_height() / DOWNSAMPLING,
              255, "log.ppm");
     // For each row of nodes
     double end_num = data_manager.get_width() - 1;
@@ -117,13 +117,13 @@ int main() {
                 // Calculate what our initial start pixel was
                 int last_pixel = 0;
                 if (x_coords) {
-                    last_pixel =
+                    last_pixel = (int) (
                             (start_x - pixel_data[0] - line_num * pixel_data[2]) / pixel_data[1] -
-                            .5;
+                            .5);
                 } else {
-                    last_pixel =
+                    last_pixel = (int) (
                             (start_y - pixel_data[3] - line_num * pixel_data[5]) / pixel_data[4] -
-                            .5;
+                            .5);
                 }
 
                 int point_pixel = 0;
@@ -133,11 +133,13 @@ int main() {
                     OGRPoint *pt = dynamic_cast<OGRPoint *>(intersections->getGeometryRef(i));
                     // Calculate how many steps we need to take to get there and store it
                     if (x_coords) {
-                        point_pixel = (pt->getX() - pixel_data[0] - line_num * pixel_data[2]) /
-                                      pixel_data[1] - .5;
+                        point_pixel = (int) (
+                                (pt->getX() - pixel_data[0] - line_num * pixel_data[2]) /
+                                pixel_data[1] - .5);
                     } else {
-                        point_pixel = (pt->getY() - pixel_data[3] - line_num * pixel_data[5]) /
-                                      pixel_data[4] - .5;
+                        point_pixel = (int) (
+                                (pt->getY() - pixel_data[3] - line_num * pixel_data[5]) /
+                                pixel_data[4] - .5);
                     }
                     int pixel_dif = point_pixel - last_pixel;
                     if (in_shape) {
@@ -225,8 +227,10 @@ int main() {
                     if (!rand_int(0, factor)) {
                         array_slot = pixel_counter / DOWNSAMPLING;
                         node_array[array_slot].red += data[data_line_offset + pixel_counter * 3];
-                        node_array[array_slot].green += data[data_line_offset + pixel_counter * 3 + 1];
-                        node_array[array_slot].blue += data[data_line_offset + pixel_counter * 3 + 2];
+                        node_array[array_slot].green += data[data_line_offset + pixel_counter * 3 +
+                                                             1];
+                        node_array[array_slot].blue += data[data_line_offset + pixel_counter * 3 +
+                                                            2];
                         node_array[array_slot].count++;
                     }
                     pixel_counter += 1;
