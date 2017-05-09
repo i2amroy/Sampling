@@ -9,4 +9,4 @@ Notes:
  While the program can handle multi-line blocks; it will currently break if 
  given a file with multiple blocks per line.
  
- Image data taken from naturalearthdata.com/downloads/
+ Example image data taken from the repository at naturalearthdata.com/downloads/
