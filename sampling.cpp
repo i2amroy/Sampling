@@ -10,12 +10,12 @@ void initialize_nodes(sample_node nodes[], int count) {
         nodes[i].green = 0;
         nodes[i].blue = 0;
         nodes[i].count = 0;
-        nodes[i].streak = 0;
+        nodes[i].streak = 1;
     }
 }
 
-void swap_node_arrays(sample_node* &first_array, sample_node* &second_array) {
-    sample_node* tmp = first_array;
+void swap_node_arrays(sample_node *&first_array, sample_node *&second_array) {
+    sample_node *tmp = first_array;
     first_array = second_array;
     second_array = tmp;
 }
@@ -46,12 +46,11 @@ GByte *sampler::get_next_data(int &size) {
     // Return the RGB data interleaved
     GByte *band_data = (GByte *) CPLMalloc((size_t) blockwidth * blockheight * 3);
     CPLErr ecode = raster_data->RasterIO(GF_Read, current_i * blockwidth, current_j * blockheight,
-                                         blockwidth,
-                                         blockheight, band_data, blockwidth, blockheight, GDT_Byte,
-                                         3, NULL, 3,
-                                         3 * blockwidth, 1);
+                                         blockwidth, blockheight, band_data, blockwidth,
+                                         blockheight, GDT_Byte, 3, NULL, 3, 3 * blockwidth, 1);
     if (ecode == CE_Failure) {
-        throw 10;
+        printf("Error reading RasterIO");
+        exit(2);
     }
     return band_data;
 }
