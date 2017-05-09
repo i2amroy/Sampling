@@ -201,17 +201,6 @@ int main() {
 
             // Reset after usage in our first pixel sampling
             in_shape = initial_in_shape;
-            if (line_num == 314) {
-                printf("inshape: %d\n", in_shape);
-                for (int i = 0; i < counts.size(); ++i) {
-                    printf("%2d ", counts[i]);
-                }
-                printf("\n");
-                for (int i = 0; i < remainders.size(); ++i) {
-                    printf("%2d ", remainders[i]);
-                }
-                printf("\n");
-            }
 
             // *3 here because data has 3 red/green/blue bands interlaced
             int data_line_offset = current_line * data_manager.get_width() * 3;
