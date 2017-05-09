@@ -10,6 +10,7 @@
 
 #ifdef DEBUG
 int pixelcount = 0;
+bool one_line = true;
 #endif
 
 void write_p6(std::ofstream &outfile, int width, int height, int maxval, std::string filename) {
@@ -24,9 +25,13 @@ void nodes_to_p6(std::ofstream &stream, std::ofstream &logstream, sample_node no
         u_int8_t  arr2[3] = {};
         // If we have samples then calculate our output
         if (nodes[i].count > 0) {
-            arr[0] = nodes[i].red / nodes[i].count;
-            arr[1] = nodes[i].green / nodes[i].count;
-            arr[2] = nodes[i].blue / nodes[i].count;
+            nodes[i].red /= nodes[i].count;
+            nodes[i].green /= nodes[i].count;
+            nodes[i].blue /= nodes[i].count;
+            nodes[i].count = 1;
+            arr[0] = (u_int8_t)nodes[i].red;
+            arr[1] = (u_int8_t)nodes[i].green;
+            arr[2] = (u_int8_t)nodes[i].blue;
             arr2[0] = 255;
         } else {
             if (upnodes[i].count != 0) {
@@ -38,25 +43,26 @@ void nodes_to_p6(std::ofstream &stream, std::ofstream &logstream, sample_node no
                 nodes[i].blue = (nodes[i-1].blue * left_weight + upnodes[i].blue * up_weight) / total_weight;
                 nodes[i].count = 1;
                 nodes[i].streak = std::min(nodes[i-1].streak, upnodes[i].streak) + 1;
-                arr[0] = nodes[i].red;
-                arr[1] = nodes[i].green;
-                arr[2] = nodes[i].blue;
+                arr[0] = (u_int8_t)nodes[i].red;
+                arr[1] = (u_int8_t)nodes[i].green;
+                arr[2] = (u_int8_t)nodes[i].blue;
             } else {
                 nodes[i].red = nodes[i-1].red;
                 nodes[i].green = nodes[i-1].green;
                 nodes[i].blue = nodes[i-1].blue;
                 nodes[i].count = 1;
                 nodes[i].streak = nodes[i-1].streak + 1;
-                arr[0] = nodes[i].red;
-                arr[1] = nodes[i].green;
-                arr[2] = nodes[i].blue;
+                arr[0] = (u_int8_t)nodes[i].red;
+                arr[1] = (u_int8_t)nodes[i].green;
+                arr[2] = (u_int8_t)nodes[i].blue;
             }
         }
         stream.write((char *) arr, 3);
         logstream.write((char *) arr2, 3);
 
 #ifdef DEBUG
-        if (i == 0 || nodes[i].count > 1) {
+        if (i == 0 || i == 50 || i == 100 || i == 200) {
+            one_line = false;
             printf("node.red:%6d, node.green:%6d, node.blue:%6d, node.count:%3d, r:%3d, g:%3d, b:%3d pixelcount %d\n",
                    nodes[i].red,
                    nodes[i].green, nodes[i].blue, nodes[i].count, arr[0], arr[1], arr[2],

@@ -5,9 +5,9 @@
 #include "ppm.h"
 #include <unistd.h>
 
-#define FINEFACTOR 10
+#define FINEFACTOR 2
 #define COARSEFACTOR 10
-#define DOWNSAMPLING 1
+#define DOWNSAMPLING 2
 
 // NOTE: This implementation currently only processes GEOTIFF's where the blocksize contains an
 // entire row of the image. Blocks may be multiple rows tall, but there may not be multiple blocks
@@ -44,9 +44,7 @@ int main() {
     }
     OGRGeometry *shapes = multishapes->Boundary();
 
-    // This is actually (width / DOWNSAMPLING * DOWNSAMPLING) since downsampling occurs in both the
-    // X and Y directions equally
-    int node_i_count = data_manager.get_width();
+    int node_i_count = data_manager.get_width() / DOWNSAMPLING;
 
     sample_node *node_array = (sample_node *) CPLMalloc(sizeof(sample_node) * node_i_count);
     initialize_nodes(node_array, node_i_count);
@@ -197,11 +195,10 @@ int main() {
             }
 
             int data_line_offset = current_line * data_manager.get_width() * 3;
-            int out_line_offset = sample_line * data_manager.get_width() / DOWNSAMPLING;
-            int array_slot = out_line_offset + pixel_counter / DOWNSAMPLING;
-            node_array[array_slot].red = data[data_line_offset + pixel_counter * 3];
-            node_array[array_slot].green = data[data_line_offset + pixel_counter * 3 + 1];
-            node_array[array_slot].blue = data[data_line_offset + pixel_counter * 3 + 2];
+            int array_slot = pixel_counter / DOWNSAMPLING;
+            node_array[array_slot].red += data[data_line_offset + pixel_counter * 3];
+            node_array[array_slot].green += data[data_line_offset + pixel_counter * 3 + 1];
+            node_array[array_slot].blue += data[data_line_offset + pixel_counter * 3 + 2];
             node_array[array_slot].count++;
             pixel_counter++;
 
@@ -215,10 +212,10 @@ int main() {
                     int rand = rand_int(0, factor);
                     int rem = factor - rand;
                     pixel_counter += rand;
-                    array_slot = out_line_offset + pixel_counter / DOWNSAMPLING;
-                    node_array[array_slot].red = data[data_line_offset + pixel_counter * 3];
-                    node_array[array_slot].green = data[data_line_offset + pixel_counter * 3 + 1];
-                    node_array[array_slot].blue = data[data_line_offset + pixel_counter * 3 + 2];
+                    array_slot = pixel_counter / DOWNSAMPLING;
+                    node_array[array_slot].red += data[data_line_offset + pixel_counter * 3];
+                    node_array[array_slot].green += data[data_line_offset + pixel_counter * 3 + 1];
+                    node_array[array_slot].blue += data[data_line_offset + pixel_counter * 3 + 2];
                     node_array[array_slot].count++;
                     pixel_counter += rem;
                     countdown--;
@@ -226,10 +223,10 @@ int main() {
                 int remainder = remainders[region];
                 while (remainder > 0) {
                     if (!rand_int(0, factor)) {
-                        array_slot = out_line_offset + pixel_counter / DOWNSAMPLING;
-                        node_array[array_slot].red = data[data_line_offset + pixel_counter * 3];
-                        node_array[array_slot].green = data[data_line_offset + pixel_counter * 3 + 1];
-                        node_array[array_slot].blue = data[data_line_offset + pixel_counter * 3 + 2];
+                        array_slot = pixel_counter / DOWNSAMPLING;
+                        node_array[array_slot].red += data[data_line_offset + pixel_counter * 3];
+                        node_array[array_slot].green += data[data_line_offset + pixel_counter * 3 + 1];
+                        node_array[array_slot].blue += data[data_line_offset + pixel_counter * 3 + 2];
                         node_array[array_slot].count++;
                     }
                     pixel_counter += 1;
