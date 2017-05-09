@@ -6,6 +6,8 @@
 #define FINEFACTOR 2
 #define COARSEFACTOR 10
 #define DOWNSAMPLING 2
+#define VECTOR "vector"
+#define RASTER "Japan.tif"
 
 // NOTE: This implementation currently only processes GEOTIFF's where the blocksize contains an
 // entire row of the image. Blocks may be multiple rows tall, but there may not be multiple blocks
@@ -14,7 +16,7 @@
 int main() {
     // First open the raster dataset
     GDALAllRegister();
-    GDALDataset *raster_data = (GDALDataset *) GDALOpen("Japan.tif", GA_ReadOnly);
+    GDALDataset *raster_data = (GDALDataset *) GDALOpen(RASTER, GA_ReadOnly);
     sampler data_manager(raster_data);
     // Get the required pixel data from the raster data, format here is
     // upper left x, width x value, height x value, upper left y, width y value, height y value
@@ -22,7 +24,7 @@ int main() {
     CPLErr err = raster_data->GetGeoTransform(pixel_data);
 
     // Open the vector data
-    GDALDataset *vector_data = (GDALDataset *) GDALOpenEx("vector", GDAL_OF_VECTOR, NULL, NULL,
+    GDALDataset *vector_data = (GDALDataset *) GDALOpenEx(VECTOR, GDAL_OF_VECTOR, NULL, NULL,
                                                           NULL);
     OGRLayer *vect_layer = vector_data->GetLayer(0);
 
@@ -196,6 +198,7 @@ int main() {
                 replacement++;
             }
 
+            // *3 here because data has 3 red/green/blue bands interlaced
             int data_line_offset = current_line * data_manager.get_width() * 3;
             int array_slot = pixel_counter / DOWNSAMPLING;
             node_array[array_slot].red += data[data_line_offset + pixel_counter * 3];
@@ -204,11 +207,15 @@ int main() {
             node_array[array_slot].count++;
             pixel_counter++;
 
+            // Next we go through the list of counts and remainders
             for (int region = 0; region < counts.size(); ++region) {
                 int factor = COARSEFACTOR;
                 if (in_shape) {
                     factor = FINEFACTOR;
                 }
+
+                // For each count sample one spot in your sample factor as a speedup to individual
+                // sampling rolls
                 int countdown = counts[region];
                 while (countdown > 0) {
                     int rand = rand_int(0, factor);
@@ -222,6 +229,9 @@ int main() {
                     pixel_counter += rem;
                     countdown--;
                 }
+
+                // While each remainder spot has to be individually rolled as a 1 in FACTOR rng to
+                // determine if we sample that spot or not.
                 int remainder = remainders[region];
                 while (remainder > 0) {
                     if (!rand_int(0, factor)) {
@@ -239,6 +249,8 @@ int main() {
                 in_shape = !in_shape;
             }
 
+            // Only print our line out to the output if we've reached the amount of lines per
+            // our DOWNSAMPLING value
             if (sample_line == DOWNSAMPLING - 1) {
                 nodes_to_p6(outfile, logfile, node_array, up_array, node_i_count);
                 // Store our old node_array into up_array
@@ -247,6 +259,7 @@ int main() {
                 initialize_nodes(node_array, node_i_count);
                 sample_line = 0;
             } else {
+                // Else just add one to our line counter for our sample
                 sample_line++;
             }
         }

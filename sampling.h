@@ -1,5 +1,5 @@
 //
-// Created by OtherPlayers on 3/2/17.
+// Created by Christian Buskirk on 3/2/17.
 //
 
 #ifndef GDALWORK_SAMPLING_H

@@ -1,5 +1,5 @@
 //
-// Created by OtherPlayers on 3/3/17.
+// Created by Christian Buskirk on 3/3/17.
 //
 
 #include "ppm.h"
@@ -12,17 +12,21 @@
 int pixelcount = 0;
 #endif
 
+// Writes out a P6 ppm file header
 void write_p6(std::ofstream &outfile, int width, int height, int maxval, std::string filename) {
     outfile.open(filename, std::ios::out | std::ios::trunc | std::ios::binary);
     outfile << "P6 " << width << " " << height << " " << maxval << "\n";
 }
 
+// Takes an array of nodes, processes them, and writes out their values to a file as well as
+// writing out a sample marker to a log file.
 void nodes_to_p6(std::ofstream &stream, std::ofstream &logstream, sample_node nodes[],
                  sample_node upnodes[], int count) {
     for (int i = 0; i < count; ++i) {
         u_int8_t arr[3] = {};
         u_int8_t arr2[3] = {};
-        // If we have samples then calculate our output
+        // If we have samples then calculate our output, updating our node with the final processed
+        // values so that future nodes can refer to our values directly if necessary
         if (nodes[i].count > 0) {
             nodes[i].red /= nodes[i].count;
             nodes[i].green /= nodes[i].count;
@@ -33,7 +37,11 @@ void nodes_to_p6(std::ofstream &stream, std::ofstream &logstream, sample_node no
             arr[2] = (u_int8_t) nodes[i].blue;
             arr2[0] = 255;
         } else {
+            // If we have access to two different nodes
             if (upnodes[i].count != 0) {
+                // Then the weighting scheme counterweights based on how far a node is from a sample,
+                // with nodes that are averages of averages of averages being worth less as the
+                // distance increases.
                 int left_weight = std::max(100 / (int) nodes[i - 1].streak, 1);
                 int up_weight = std::max(100 / (int) upnodes[i].streak, 1);
                 int total_weight = left_weight + up_weight;
@@ -49,6 +57,8 @@ void nodes_to_p6(std::ofstream &stream, std::ofstream &logstream, sample_node no
                 arr[1] = (u_int8_t) nodes[i].green;
                 arr[2] = (u_int8_t) nodes[i].blue;
             } else {
+                // Else we just copy the values from the node to our left. This should only occur
+                // when we are at the very top of the picture.
                 nodes[i].red = nodes[i - 1].red;
                 nodes[i].green = nodes[i - 1].green;
                 nodes[i].blue = nodes[i - 1].blue;

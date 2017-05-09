@@ -1,9 +1,10 @@
 //
-// Created by OtherPlayers on 3/2/17.
+// Created by Christian Buskirk on 3/2/17.
 //
 
 #include "sampling.h"
 
+// Initializes an array of sample_node's to their default values
 void initialize_nodes(sample_node nodes[], int count) {
     for (int i = 0; i < count; i++) {
         nodes[i].red = 0;
